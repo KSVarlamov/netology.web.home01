@@ -18,7 +18,6 @@ public class Server {
     private final List<String> validPaths = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js");
 
     public void start(int port) {
-        this.port = port;
         try (final var serverSocket = new ServerSocket(port)) {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
