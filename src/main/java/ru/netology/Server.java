@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 public class Server {
     private final ExecutorService poolExecutor = Executors.newFixedThreadPool(64);
     private final ConcurrentHashMap<String, Handler> getHandlers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Handler> posHandlers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Handler> postHandlers = new ConcurrentHashMap<>();
 
     public void start(int port) {
         try (final var serverSocket = new ServerSocket(port)) {
@@ -36,7 +36,7 @@ public class Server {
             return;
         }
         if ("POST".equals(method)) {
-            posHandlers.put(page, handler);
+            postHandlers.put(page, handler);
             return;
         }
         throw new IllegalArgumentException("Unknown method: " + method);
@@ -103,7 +103,7 @@ public class Server {
                     }
                 }
                 case POST -> {
-                    Handler handler = posHandlers.get(request.getPath());
+                    Handler handler = postHandlers.get(request.getPath());
                     if (handler != null) {
                         handler.handle(request, out);
                     } else {
@@ -118,8 +118,8 @@ public class Server {
             try {
                 out.write(("""
                         HTTP/1.1 404 Not Found\r
-                        Content-Length: 0\r 
-                        Connection: close\r 
+                        Content-Length: 0\r
+                        Connection: close\r
                         \r"""
                 ).getBytes());
                 out.flush();
