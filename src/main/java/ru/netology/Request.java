@@ -5,8 +5,6 @@ import org.apache.hc.core5.net.URLEncodedUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +19,7 @@ public class Request {
     private URI uri;
     private String protocol;
 
-    private List<NameValuePair> GETValues;
+    private List<NameValuePair> getValues;
 
     public Request setProtocolType(String protocol) {
         this.protocol = protocol;
@@ -55,7 +53,7 @@ public class Request {
     public Request setURI(String uri) {
         try {
             this.uri = new URI(uri);
-            GETValues = URLEncodedUtils.parse(this.uri, StandardCharsets.UTF_8);
+            getValues = URLEncodedUtils.parse(this.uri, StandardCharsets.UTF_8);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -64,15 +62,16 @@ public class Request {
 
     public List<String> getQueryParam(String name) {
         List<String> result = new ArrayList<>();
-        for (NameValuePair pair : GETValues) {
+        for (NameValuePair pair : getValues) {
             if (pair.getName().equals(name)) {
                 result.add(pair.getValue());
             }
         }
         return result;
     }
+
     public List<NameValuePair> getQueryParams() {
-        return this.GETValues;
+        return this.getValues;
     }
 
     public String getProtocol() {
