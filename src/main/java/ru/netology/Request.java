@@ -1,6 +1,7 @@
 package ru.netology;
 
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URLEncodedUtils;
 
 import java.net.URI;
@@ -14,12 +15,13 @@ import java.util.Map;
 public class Request {
 
     private final Map<String, String> headers = new HashMap<>();
-    private final List<String> body = new ArrayList<>();
     private Method method = Method.GET;
     private URI uri;
     private String protocol;
 
-    private List<NameValuePair> getValues;
+    private List<NameValuePair> getValues = new ArrayList<>();
+    private List<NameValuePair> postValues = new ArrayList<>();
+
 
     public Request setProtocolType(String protocol) {
         this.protocol = protocol;
@@ -70,7 +72,7 @@ public class Request {
         return result;
     }
 
-    public List<NameValuePair> getQueryParams() {
+    public List<NameValuePair> getQueryValues() {
         return this.getValues;
     }
 
@@ -82,12 +84,35 @@ public class Request {
         return headers;
     }
 
-    public List<String> getBody() {
-        return body;
+
+    public void setBody(char[] body) {
+        String contentType = headers.get("Content-Type");
+        if (contentType.equals("application/x-www-form-urlencoded")) {
+            String[] parts = new String(body).split("&");
+            postValues = new ArrayList<>();
+            for (String part : parts) {
+                String[] tmp = part.split("=");
+                if (tmp.length != 2) {
+                    continue;
+                }
+                NameValuePair pair = new BasicNameValuePair(tmp[0], tmp[1]);
+                postValues.add(pair);
+            }
+        }
     }
 
-    public void addRequestBody(String s) {
-        body.add(s);
+    public List<NameValuePair> getPostValues() {
+        return postValues;
+    }
+
+    public List<String> getPostParam(String name) {
+        List<String> result = new ArrayList<>();
+        for (NameValuePair pair : postValues) {
+            if (pair.getName().equals(name)) {
+                result.add(pair.getValue());
+            }
+        }
+        return result;
     }
 
     enum Method {

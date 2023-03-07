@@ -1,5 +1,7 @@
 package ru.netology;
 
+import org.apache.hc.core5.http.NameValuePair;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
-    private static final List<String> simplePages = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/events.html", "/events.js");
+    private static final List<String> simplePages = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/events.html", "/events.js", "/default-post.html");
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -62,12 +64,12 @@ public class Main {
                 final var mimeType = Files.probeContentType(filePath);
                 final var template = Files.readString(filePath);
                 final var content = template.getBytes();
-                if (!request.getQueryParams().isEmpty()) {
+                if (!request.getQueryValues().isEmpty()) {
                     for (String str : request.getQueryParam("value")) {
                         System.out.println("value: " + str);
                     }
                 }
-                if (!request.getQueryParams().isEmpty()) {
+                if (!request.getQueryValues().isEmpty()) {
                     for (String str : request.getQueryParam("image")) {
                         System.out.println("image: " + str);
                     }
@@ -80,6 +82,33 @@ public class Main {
                                 "\r\n"
                 ).getBytes());
                 out.write(content);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        server.addHandler("POST", "/", (request, out) -> {
+
+            if (!request.getPostValues().isEmpty()) {
+                System.out.println("POST Values:");
+                for (NameValuePair pair : request.getPostValues()) {
+                    System.out.printf("%s = [%s]%n", pair.getName(), pair.getValue());
+                }
+            }
+            if (!request.getQueryValues().isEmpty()) {
+                System.out.println("GET Values:");
+                for (NameValuePair pair : request.getQueryValues()) {
+                    System.out.printf("%s = [%s]%n", pair.getName(), pair.getValue());
+                }
+            }
+
+            try {
+                out.write((
+                        "HTTP/1.1 200 OK\r\n" +
+                                "Content-Length: 0\r\n" +
+                                "Connection: close\r\n" +
+                                "\r\n"
+                ).getBytes());
                 out.flush();
             } catch (IOException e) {
                 e.printStackTrace();
