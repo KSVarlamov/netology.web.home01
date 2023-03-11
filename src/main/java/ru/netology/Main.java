@@ -56,6 +56,36 @@ public class Main {
             }
         });
 
+        server.addHandler("GET", "/default-get.html", (request, out) -> {
+            try {
+                final var filePath = Path.of(".", "public", request.getPath());
+                final var mimeType = Files.probeContentType(filePath);
+                final var template = Files.readString(filePath);
+                final var content = template.getBytes();
+                if (!request.getQueryParams().isEmpty()) {
+                    for (String str : request.getQueryParam("value")) {
+                        System.out.println("value: " + str);
+                    }
+                }
+                if (!request.getQueryParams().isEmpty()) {
+                    for (String str : request.getQueryParam("image")) {
+                        System.out.println("image: " + str);
+                    }
+                }
+                out.write((
+                        "HTTP/1.1 200 OK\r\n" +
+                                "Content-Type: " + mimeType + "\r\n" +
+                                "Content-Length: " + content.length + "\r\n" +
+                                "Connection: close\r\n" +
+                                "\r\n"
+                ).getBytes());
+                out.write(content);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
         server.start(9999);
     }
 

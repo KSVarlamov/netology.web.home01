@@ -72,7 +72,7 @@ public class Server {
                     return;
                 }
                 Request request = new Request();
-                request.setMethod(parts[0]).setPath(parts[1]).setProtocolType(parts[2]);
+                request.setMethod(parts[0]).setURI(parts[1]).setProtocolType(parts[2]);
                 //reading HTTP Headers
                 while (in.ready()) {
                     String s = in.readLine();
