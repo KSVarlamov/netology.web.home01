@@ -72,7 +72,10 @@ public class Server {
                     return;
                 }
                 Request request = new Request();
-                request.setMethod(parts[0]).setURI(parts[1]).setProtocolType(parts[2]);
+                request
+                        .setMethod(parts[0])
+                        .setURI(parts[1])
+                        .setProtocolType(parts[2]);
                 //reading HTTP Headers
                 while (in.ready()) {
                     String s = in.readLine();
@@ -82,10 +85,13 @@ public class Server {
                     request.addHTTPHeader(s);
                 }
                 //reading request body
-                while (in.ready()) {
-                    String s = in.readLine();
-                    request.addRequestBody(s);
+                if (request.getMethod() == Request.Method.POST) {
+                    int bodySize = Integer.parseInt(request.getHeaders().get("Content-Length"));
+                    char[] bodyBytes = new char[bodySize];
+                    in.read(bodyBytes);
+                    request.setBody(bodyBytes);
                 }
+
                 processRequest(request);
             } catch (IOException e) {
                 e.printStackTrace();
